@@ -19,12 +19,16 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
       <div className="aspect-video bg-neutral-100 flex items-center justify-center p-4">
         <div className="h-full w-full flex flex-col items-center justify-center bg-dart-black/5 rounded-lg border border-dart-black/10 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-neutral-200/30 flex items-center justify-center">
+            {/* Red recording indicator */}
             <div className="absolute top-3 right-3 bg-red-500 h-2.5 w-2.5 rounded-full animate-pulse"></div>
             
-            <div className="grid grid-cols-3 gap-1 absolute top-0 left-0 p-2 opacity-20">
-              {[...Array(9)].map((_, index) => (
-                <div key={index} className="w-2 h-2 rounded-full bg-dart-black"></div>
-              ))}
+            {/* Replace grid of circles with subtle noise pattern */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-10">
+              <div className="w-full h-full" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'repeat',
+                backgroundSize: '100px 100px',
+              }}></div>
             </div>
           </div>
           
