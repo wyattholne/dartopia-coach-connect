@@ -1,6 +1,7 @@
 
-import React from "react";
-import { RefreshCw, Video } from "lucide-react";
+import React, { useState } from "react";
+import { RefreshCw, Video, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CameraFeedProps {
   title: string;
@@ -8,6 +9,33 @@ interface CameraFeedProps {
 }
 
 export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
+  const [connectionState, setConnectionState] = useState<"disconnected" | "connecting" | "connected">("disconnected");
+  const { toast } = useToast();
+
+  const handleConnectClick = () => {
+    // Update state to "connecting"
+    setConnectionState("connecting");
+    
+    // Show toast for connecting
+    toast({
+      title: `${title}`,
+      description: "Attempting to connect to camera...",
+      duration: 2000,
+    });
+    
+    // Simulate connection delay (2.5 seconds)
+    setTimeout(() => {
+      setConnectionState("connected");
+      
+      // Show toast for connected
+      toast({
+        title: `${title}`,
+        description: "Camera connected successfully!",
+        duration: 3000,
+      });
+    }, 2500);
+  };
+
   return (
     <div className="feed-card animate-scale-in" style={{ animationDelay: `${parseInt(id) * 100}ms` }}>
       <div className="p-3 border-b border-neutral-200 flex items-center justify-between">
@@ -39,10 +67,59 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-sm text-dart-black/70 font-medium">Camera feed not connected</p>
-            <p className="text-xs text-dart-black/50 mt-1">Connect your camera to start analysis</p>
-            <button className="mt-4 btn-primary text-xs py-1 px-3">
-              Connect Camera
+            
+            {connectionState === "disconnected" && (
+              <p className="text-sm text-dart-black/70 font-medium">Camera feed not connected</p>
+            )}
+            
+            {connectionState === "connecting" && (
+              <p className="text-sm text-dart-black/70 font-medium flex items-center">
+                <span className="mr-2">Connecting to camera</span>
+                <span className="inline-block h-2 w-2 bg-dart-green rounded-full animate-pulse"></span>
+                <span className="inline-block h-2 w-2 bg-dart-green rounded-full animate-pulse" style={{ animationDelay: "300ms" }}></span>
+                <span className="inline-block h-2 w-2 bg-dart-green rounded-full animate-pulse" style={{ animationDelay: "600ms" }}></span>
+              </p>
+            )}
+            
+            {connectionState === "connected" && (
+              <p className="text-sm text-dart-green font-medium flex items-center">
+                <Check className="w-4 h-4 mr-1.5" />
+                Live Feed Preview Ready
+              </p>
+            )}
+            
+            {connectionState === "disconnected" && (
+              <p className="text-xs text-dart-black/50 mt-1">Connect your camera to start analysis</p>
+            )}
+            
+            <button 
+              onClick={handleConnectClick}
+              disabled={connectionState === "connecting" || connectionState === "connected"}
+              className={`mt-4 text-xs py-1.5 px-3 rounded flex items-center justify-center transition-all duration-200 ${
+                connectionState === "disconnected" ? 
+                  "bg-dart-green text-white hover:bg-dart-green-dark" :
+                connectionState === "connecting" ? 
+                  "bg-dart-green/70 text-white cursor-wait" :
+                  "bg-dart-accent text-white"
+              }`}
+              style={{ minWidth: "120px" }}
+            >
+              {connectionState === "disconnected" && "Connect Camera"}
+              {connectionState === "connecting" && (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Connecting...
+                </>
+              )}
+              {connectionState === "connected" && (
+                <>
+                  <Check className="h-4 w-4 mr-1.5" />
+                  Connected
+                </>
+              )}
             </button>
           </div>
           
