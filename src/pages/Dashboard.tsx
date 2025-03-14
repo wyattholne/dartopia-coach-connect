@@ -2,7 +2,7 @@
 import { Navbar } from "@/components/Navbar";
 import { CameraFeed } from "@/components/CameraFeed";
 import { FeedbackSection } from "@/components/FeedbackSection";
-import { Play, Settings } from "lucide-react";
+import { Play, Settings, Info } from "lucide-react";
 
 const Dashboard = () => {
   return (
@@ -27,6 +27,18 @@ const Dashboard = () => {
                   <Play className="h-4 w-4 mr-2" />
                   Start Session
                 </button>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start">
+              <Info className="h-5 w-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Dartopia AI Vision Active</span> - When you connect a camera, our AI will detect dartboards and bullseyes in real-time. The score is calculated based on precision and accuracy of your throws.
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  This demo uses simulated data. In a real setup, connect your cameras and the system will analyze actual dart throws.
+                </p>
               </div>
             </div>
             

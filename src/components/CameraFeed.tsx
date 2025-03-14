@@ -1,7 +1,13 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { RefreshCw, Video, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface Prediction {
+  label: string;
+  confidence: number;
+  bbox: [number, number, number, number]; // [x, y, width, height]
+}
 
 interface CameraFeedProps {
   title: string;
@@ -10,7 +16,118 @@ interface CameraFeedProps {
 
 export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
   const [connectionState, setConnectionState] = useState<"disconnected" | "connecting" | "connected">("disconnected");
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [score, setScore] = useState<number | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Fetch predictions and scores when connected
+  useEffect(() => {
+    let intervalId: number | undefined;
+    
+    if (connectionState === "connected") {
+      // Start fetching predictions and scores
+      intervalId = window.setInterval(() => {
+        fetchPredictions();
+        fetchScore();
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId !== undefined) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [connectionState]);
+
+  // Draw predictions on canvas when they update
+  useEffect(() => {
+    if (connectionState === "connected" && predictions.length > 0 && canvasRef.current && videoContainerRef.current) {
+      drawPredictions();
+    }
+  }, [predictions, connectionState]);
+
+  const fetchPredictions = async () => {
+    try {
+      // For demo purposes, we'll simulate predictions
+      // In a real implementation, you would fetch from an actual endpoint:
+      // const response = await fetch(`http://<your_server_ip>:5000/predict`);
+      // const data = await response.json();
+      
+      // Simulate random predictions for demo
+      const simulatedPredictions: Prediction[] = [
+        {
+          label: "dartboard",
+          confidence: 0.92,
+          bbox: [Math.random() * 50 + 25, Math.random() * 50 + 25, 150, 150]
+        }
+      ];
+      
+      // Randomly add a bullseye detection
+      if (Math.random() > 0.5) {
+        simulatedPredictions.push({
+          label: "bullseye",
+          confidence: 0.85,
+          bbox: [simulatedPredictions[0].bbox[0] + 60, simulatedPredictions[0].bbox[1] + 60, 30, 30]
+        });
+      }
+      
+      setPredictions(simulatedPredictions);
+    } catch (error) {
+      console.error("Error fetching predictions:", error);
+    }
+  };
+
+  const fetchScore = async () => {
+    try {
+      // For demo purposes, we'll simulate a score
+      // In a real implementation, you would fetch from an actual endpoint:
+      // const response = await fetch(`http://<your_server_ip>:5000/score`);
+      // const data = await response.json();
+      
+      // Simulate a random score for demo
+      const simulatedScore = Math.floor(Math.random() * 60) + 1;
+      setScore(simulatedScore);
+    } catch (error) {
+      console.error("Error fetching score:", error);
+    }
+  };
+
+  const drawPredictions = () => {
+    const canvas = canvasRef.current;
+    const container = videoContainerRef.current;
+    
+    if (!canvas || !container) return;
+    
+    // Match canvas dimensions to container
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Clear previous drawings
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw each prediction
+    predictions.forEach(pred => {
+      const { bbox, label, confidence } = pred;
+      const [x, y, width, height] = bbox;
+      
+      // Draw bounding box
+      ctx.strokeStyle = label === 'bullseye' ? '#f43f5e' : '#4ADE80';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, width, height);
+      
+      // Draw label
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(x, y - 20, label.length * 8 + 30, 20);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '12px Arial';
+      ctx.fillText(`${label} ${(confidence * 100).toFixed(0)}%`, x + 5, y - 5);
+    });
+  };
 
   const handleConnectClick = () => {
     // Update state to "connecting"
@@ -33,6 +150,10 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
         description: "Camera connected successfully!",
         duration: 3000,
       });
+      
+      // Initial prediction fetch
+      fetchPredictions();
+      fetchScore();
     }, 2500);
   };
 
@@ -45,10 +166,15 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
         </button>
       </div>
       <div className="aspect-video bg-neutral-100 flex items-center justify-center p-4">
-        <div className="h-full w-full flex flex-col items-center justify-center bg-dart-black/5 rounded-lg border border-dart-black/10 relative overflow-hidden">
+        <div 
+          ref={videoContainerRef}
+          className="h-full w-full flex flex-col items-center justify-center bg-dart-black/5 rounded-lg border border-dart-black/10 relative overflow-hidden"
+        >
           <div className="absolute top-0 left-0 w-full h-full bg-neutral-200/30 flex items-center justify-center">
             {/* Red recording indicator */}
-            <div className="absolute top-3 right-3 bg-red-500 h-2.5 w-2.5 rounded-full animate-pulse"></div>
+            {connectionState === "connected" && (
+              <div className="absolute top-3 right-3 bg-red-500 h-2.5 w-2.5 rounded-full animate-pulse"></div>
+            )}
             
             {/* Refined noise texture with adjusted parameters */}
             <div className="absolute top-0 left-0 w-full h-full opacity-15">
@@ -59,6 +185,14 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
               }}></div>
             </div>
           </div>
+          
+          {/* Canvas overlay for drawing predictions */}
+          {connectionState === "connected" && (
+            <canvas 
+              ref={canvasRef} 
+              className="absolute top-0 left-0 w-full h-full z-10 pointer-events-none"
+            />
+          )}
           
           <div className="relative z-10 flex flex-col items-center justify-center">
             <div className="w-16 h-16 rounded-full bg-dart-black/10 mb-4 flex items-center justify-center">
@@ -90,6 +224,13 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ title, id }) => {
             
             {connectionState === "disconnected" && (
               <p className="text-xs text-dart-black/50 mt-1">Connect your camera to start analysis</p>
+            )}
+            
+            {/* Score display */}
+            {connectionState === "connected" && score !== null && (
+              <div className="bg-dart-black/80 px-3 py-1 rounded-full mt-2">
+                <p className="text-sm text-white font-medium">Score: {score}</p>
+              </div>
             )}
             
             <button 
