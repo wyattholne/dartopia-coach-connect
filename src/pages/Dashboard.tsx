@@ -2,7 +2,8 @@
 import { Navbar } from "@/components/Navbar";
 import { CameraFeed } from "@/components/CameraFeed";
 import { FeedbackSection } from "@/components/FeedbackSection";
-import { Play, Settings, Info } from "lucide-react";
+import { Play, Settings, Info, Target } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -23,6 +24,10 @@ const Dashboard = () => {
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </button>
+                <Link to="/game" className="inline-flex items-center justify-center rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-dart-black shadow-sm hover:bg-neutral-50">
+                  <Target className="h-4 w-4 mr-2" />
+                  Game Mode
+                </Link>
                 <button className="btn-primary">
                   <Play className="h-4 w-4 mr-2" />
                   Start Session

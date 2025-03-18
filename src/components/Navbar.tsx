@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import { Logo } from "./Logo";
-import { Home, Layout, TrendingUp, Users, User } from "lucide-react";
+import { Home, Layout, TrendingUp, Users, User, Target } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const Navbar = () => {
@@ -47,6 +47,13 @@ export const Navbar = () => {
             >
               <Layout className="w-4 h-4 mr-1" />
               <span>Coaching Dashboard</span>
+            </NavLink>
+            <NavLink 
+              to="/game" 
+              className={({ isActive }) => `nav-link flex items-center ${isActive ? "active" : ""}`}
+            >
+              <Target className="w-4 h-4 mr-1" />
+              <span>Game Mode</span>
             </NavLink>
             <NavLink 
               to="/progress" 
