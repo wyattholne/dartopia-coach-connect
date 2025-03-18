@@ -217,7 +217,7 @@ const Game = () => {
       toast({
         title: "Game Over!",
         description: `${currentPlayer.name} wins!`,
-        variant: "success",
+        variant: "default",
       });
     }
     

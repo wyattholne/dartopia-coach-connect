@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Chart, X, Check, Plus, Minus } from "lucide-react";
+import { BarChart3, X, Check, Plus, Minus } from "lucide-react";
 import { GameMode, GameState } from "@/pages/Game";
 
 interface Player {
@@ -54,10 +53,8 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
     return "text-neutral-800";
   };
   
-  // Common dart scores for quick entry
   const quickScores = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 50];
   
-  // Special scores (doubles and triples) for quick entry
   const doubleScores = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 50];
   const tripleScores = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60];
   
@@ -65,7 +62,7 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
     <div className="bg-dart-black rounded-lg shadow-sm overflow-hidden">
       <div className="p-3 border-b border-neutral-700 bg-dart-black flex items-center justify-between">
         <div className="flex items-center">
-          <Chart className="h-4 w-4 text-neutral-300 mr-2" />
+          <BarChart3 className="h-4 w-4 text-neutral-300 mr-2" />
           <h3 className="font-medium text-sm text-white">Dart Scoreboard</h3>
         </div>
         
@@ -82,7 +79,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
       </div>
       
       <div className="p-6 bg-dart-black relative">
-        {/* Chalkboard texture overlay */}
         <div 
           className="absolute inset-0 opacity-5 pointer-events-none"
           style={{
@@ -92,7 +88,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
         ></div>
         
         <div className="relative z-10 text-white">
-          {/* Score table header */}
           <div className="grid grid-cols-6 gap-2 py-2 border-b border-neutral-700 text-neutral-400 text-sm">
             <div className="col-span-2">Player</div>
             <div className="text-center">Starting</div>
@@ -101,9 +96,7 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
             <div className="text-center">Avg/Dart</div>
           </div>
           
-          {/* Player scores */}
           {players.map((player, index) => {
-            // Calculate statistics
             const starting = player.target || 0;
             const totalPointsScored = player.history.reduce((sum, score) => sum + score, 0);
             const last3 = player.history.slice(-3).join(", ") || "-";
@@ -136,12 +129,10 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
             );
           })}
           
-          {/* Quick score entry section */}
           {gameState === "playing" && (
             <div className="mt-6 border-t border-neutral-700 pt-4">
               <h4 className="text-sm font-medium text-neutral-300 mb-3">Quick Score Entry</h4>
               
-              {/* Manual score entry */}
               <form onSubmit={handleManualScoreSubmit} className="mb-4">
                 <div className="flex">
                   <input
@@ -162,7 +153,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
                 </div>
               </form>
               
-              {/* Common scores grid */}
               <div className="grid grid-cols-8 gap-2 mb-4">
                 {gameMode === "501" || gameMode === "301" ? (
                   quickScores.map(score => (
@@ -175,7 +165,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
                     </button>
                   ))
                 ) : (
-                  // For other game modes, show 1-20 and bullseye
                   [...Array(20)].map((_, i) => (
                     <button
                       key={i+1}
@@ -187,7 +176,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
                   ))
                 )}
                 
-                {/* Bull/Bullseye buttons for non-501 games */}
                 {(gameMode !== "501" && gameMode !== "301") && (
                   <>
                     <button
@@ -206,7 +194,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
                 )}
               </div>
               
-              {/* Doubles row */}
               {(gameMode === "501" || gameMode === "301") && (
                 <div className="mb-4">
                   <h5 className="text-xs font-medium text-neutral-400 mb-2">Doubles</h5>
@@ -224,7 +211,6 @@ export const GameScoreboard: React.FC<GameScoreboardProps> = ({
                 </div>
               )}
               
-              {/* Triples row */}
               {(gameMode === "501" || gameMode === "301") && (
                 <div>
                   <h5 className="text-xs font-medium text-neutral-400 mb-2">Triples</h5>
